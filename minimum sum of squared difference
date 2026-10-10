@@ -1,0 +1,83 @@
+
+class Solution {
+    public long minSumSquareDiff(int[] nums1, int[] nums2, int k1, int k2) {
+
+        int n = nums1.length;
+        long remainingOperations = (long) k1 + k2;
+
+        int maxDifference = 0;
+        long totalDifference = 0;
+
+        // Step 1: Find the maximum and total absolute difference
+        for (int i = 0; i < n; i++) {
+            int difference = Math.abs(nums1[i] - nums2[i]);
+
+            maxDifference = Math.max(maxDifference, difference);
+            totalDifference += difference;
+        }
+
+        // Step 2: If all differences can become zero
+        if (totalDifference <= remainingOperations) {
+            return 0;
+        }
+
+        // Step 3: Count the frequency of each difference
+        int[] frequency = new int[maxDifference + 1];
+
+        for (int i = 0; i < n; i++) {
+            int difference = Math.abs(nums1[i] - nums2[i]);
+            frequency[difference]++;
+        }
+
+        // Step 4: Reduce the largest differences first
+        for (int currentDifference = maxDifference;
+             currentDifference > 0;
+             currentDifference--) {
+
+            long elementsAtCurrentDifference = frequency[currentDifference];
+
+            // One operation reduces one difference by 1
+            long operationsNeeded = elementsAtCurrentDifference;
+
+            if (remainingOperations >= operationsNeeded) {
+
+                // Reduce every element at this level by 1
+                remainingOperations -= operationsNeeded;
+
+                // Move these elements to the next lower difference
+                frequency[currentDifference - 1] += frequency[currentDifference];
+                frequency[currentDifference] = 0;
+
+            } else {
+
+                // Not enough operations to reduce the entire group
+                long elementsRemainingUnchanged =
+                        elementsAtCurrentDifference - remainingOperations;
+
+                long elementsReducedByOne = remainingOperations;
+
+                // Calculate squares of elements at this level
+                long squaredSum =
+                        elementsRemainingUnchanged
+                                * currentDifference * currentDifference
+                        + elementsReducedByOne
+                                * (currentDifference - 1)
+                                * (currentDifference - 1);
+
+                // Add squares of all smaller differences
+                for (int smallerDifference = currentDifference - 1;
+                     smallerDifference >= 1;
+                     smallerDifference--) {
+
+                    squaredSum += (long) frequency[smallerDifference]
+                            * smallerDifference * smallerDifference;
+                }
+
+                return squaredSum;
+            }
+        }
+
+        // All differences have been reduced to zero
+        return 0;
+    }
+}
