@@ -1,0 +1,58 @@
+class Solution {
+    public String minWindow(String s, String t) {
+
+        int[] arr = new int[128];
+
+        // Frequency required from t
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            arr[c]++;
+        }
+
+        int[] window = new int[128];
+
+        int left = 0;
+        int required = t.length();
+
+        int minLen = Integer.MAX_VALUE;
+        int start = 0;
+
+        for (int right = 0; right < s.length(); right++) {
+
+            char c = s.charAt(right);
+            window[c]++;
+
+            // If this character is required
+            if (window[c] <= arr[c]) {
+                required--;
+            }
+
+            // Window is valid
+            while (required == 0) {
+
+                // Store minimum window
+                if (right - left + 1 < minLen) {
+                    minLen = right - left + 1;
+                    start = left;
+                }
+
+                // Remove left character
+                char leftChar = s.charAt(left);
+                window[leftChar]--;
+
+                // Window is no longer valid
+                if (window[leftChar] < arr[leftChar]) {
+                    required++;
+                }
+
+                left++;
+            }
+        }
+
+        if (minLen == Integer.MAX_VALUE) {
+            return "";
+        }
+
+        return s.substring(start, start + minLen);
+    }
+}
